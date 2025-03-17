@@ -1,37 +1,84 @@
-import { useState, type ChangeEvent } from 'react';
-import { getCodeSandboxHost } from "@codesandbox/utils";
+import { useState, useEffect } from 'react';
+import { getCodeSandboxHost } from '@codesandbox/utils';
 
-type Hotel = { _id: string, chain_name: string; hotel_name: string; city: string, country: string };
+type Hotel = {
+  _id: string;
+  chain_name: string;
+  hotel_name: string;
+  city: string;
+  country: string;
+};
 
-const codeSandboxHost = getCodeSandboxHost(3001)
-const API_URL = codeSandboxHost ? `https://${codeSandboxHost}` : 'http://localhost:3001'
+type City = {
+  _id: string;
+  name: string;
+};
 
-const fetchAndFilterHotels = async (value: string) => {
-  const hotelsData = await fetch(`${API_URL}/hotels`);
-  const hotels = (await hotelsData.json()) as Hotel[];
-  return hotels.filter(
-    ({ chain_name, hotel_name, city, country }) =>
-      chain_name.toLowerCase().includes(value.toLowerCase()) ||
-      hotel_name.toLowerCase().includes(value.toLowerCase()) ||
-      city.toLowerCase().includes(value.toLowerCase()) ||
-      country.toLowerCase().includes(value.toLowerCase())
-  );
-}
+type Country = {
+  _id: string;
+  country: string;
+  countryisocode: string;
+};
+
+const codeSandboxHost = getCodeSandboxHost(3001);
+const API_URL = codeSandboxHost
+  ? `https://${codeSandboxHost}`
+  : 'http://localhost:3001';
+
+const fetchSearchResults = async (value: string) => {
+  const data = await fetch(`${API_URL}/search?searchTerm=${value}`);
+  const payload = (await data.json()) as {
+    hotels: Hotel[];
+    cities: City[];
+    countries: Country[];
+  };
+  return payload;
+};
 
 function App() {
   const [hotels, setHotels] = useState<Hotel[]>([]);
+  const [cities, setCities] = useState<City[]>([]);
+  const [countries, setCountries] = useState<Country[]>([]);
   const [showClearBtn, setShowClearBtn] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [timeoutRef, setTimeoutRef] = useState<null | number>(null);
 
-  const fetchData = async (event: ChangeEvent<HTMLInputElement>) => {
-    if (event.target.value === '') {
+  useEffect(() => {
+    if (!searchTerm) {
+      setHotels([]);
+      return;
+    }
+
+    if (timeoutRef) {
+      clearTimeout(timeoutRef);
+    }
+
+    setTimeoutRef(
+      setTimeout(() => {
+        fetchData(searchTerm);
+        setTimeoutRef(null);
+      }, 500)
+    );
+
+    return () => {
+      if (timeoutRef) {
+        clearTimeout(timeoutRef);
+      }
+    };
+  }, [searchTerm]);
+
+  const fetchData = async (searchTerm: string) => {
+    if (searchTerm === '') {
       setHotels([]);
       setShowClearBtn(false);
       return;
     }
 
-    const filteredHotels = await fetchAndFilterHotels(event.target.value)
+    const { hotels, cities, countries } = await fetchSearchResults(searchTerm);
     setShowClearBtn(true);
-    setHotels(filteredHotels);
+    setHotels(hotels);
+    setCities(cities);
+    setCountries(countries);
   };
 
   return (
@@ -46,7 +93,7 @@ function App() {
                   type="text"
                   className="form-control form-input"
                   placeholder="Search accommodation..."
-                  onChange={fetchData}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
                 {showClearBtn && (
                   <span className="left-pan">
@@ -57,19 +104,53 @@ function App() {
               {!!hotels.length && (
                 <div className="search-dropdown-menu dropdown-menu w-100 show p-2">
                   <h2>Hotels</h2>
-                  {hotels.length ? hotels.map((hotel, index) => (
-                    <li key={index}>
-                      <a href={`/hotels/${hotel._id}`} className="dropdown-item">
-                        <i className="fa fa-building mr-2"></i>
-                        {hotel.hotel_name}
-                      </a>
-                      <hr className="divider" />
-                    </li>
-                  )) : <p>No hotels matched</p>}
+                  {hotels.length ? (
+                    hotels.map((hotel, index) => (
+                      <li key={`hotel_${index}`}>
+                        <a
+                          href={`/hotels/${hotel._id}`}
+                          className="dropdown-item"
+                        >
+                          <i className="fa fa-building mr-2"></i>
+                          {hotel.hotel_name}
+                        </a>
+                        <hr className="divider" />
+                      </li>
+                    ))
+                  ) : (
+                    <p>No hotels matched</p>
+                  )}
                   <h2>Countries</h2>
-                  <p>No countries matched</p>
+                  {countries.length ? (
+                    countries.map((country, index) => (
+                      <li key={`country_${index}`}>
+                        <a
+                          href={`/country/${country._id}`}
+                          className="dropdown-item"
+                        >
+                          <i className="fa fa-building mr-2"></i>
+                          {country.country}
+                        </a>
+                        <hr className="divider" />
+                      </li>
+                    ))
+                  ) : (
+                    <p>No countries matched</p>
+                  )}
                   <h2>Cities</h2>
-                  <p>No cities matched</p>
+                  {cities.length ? (
+                    cities.map((city, index) => (
+                      <li key={`city_${index}`}>
+                        <a href={`/city/${city._id}`} className="dropdown-item">
+                          <i className="fa fa-building mr-2"></i>
+                          {city.name}
+                        </a>
+                        <hr className="divider" />
+                      </li>
+                    ))
+                  ) : (
+                    <p>No cities matched</p>
+                  )}
                 </div>
               )}
             </div>
