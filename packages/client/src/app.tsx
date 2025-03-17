@@ -50,6 +50,7 @@ function App() {
 
     if (!searchTerm) {
       setHotels([]);
+      setShowClearBtn(false);
       return;
     }
 
@@ -68,17 +69,15 @@ function App() {
   }, [searchTerm]);
 
   const fetchData = async (searchTerm: string) => {
-    if (searchTerm === "") {
-      setHotels([]);
-      setShowClearBtn(false);
-      return;
-    }
-
     const { hotels, cities, countries } = await fetchSearchResults(searchTerm);
     setShowClearBtn(true);
     setHotels(hotels);
     setCities(cities);
     setCountries(countries);
+  };
+
+  const clearSearchTerm = () => {
+    setSearchTerm("");
   };
 
   return (
@@ -93,10 +92,11 @@ function App() {
                   type="text"
                   className="form-control form-input"
                   placeholder="Search accommodation..."
+                  value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
                 {showClearBtn && (
-                  <span className="left-pan">
+                  <span className="left-pan" onClick={clearSearchTerm}>
                     <i className="fa fa-close"></i>
                   </span>
                 )}
