@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { getCodeSandboxHost } from '@codesandbox/utils';
+import { useState, useEffect } from "react";
+import { getCodeSandboxHost } from "@codesandbox/utils";
 
 type Hotel = {
   _id: string;
@@ -23,7 +23,7 @@ type Country = {
 const codeSandboxHost = getCodeSandboxHost(3001);
 const API_URL = codeSandboxHost
   ? `https://${codeSandboxHost}`
-  : 'http://localhost:3001';
+  : "http://localhost:3001";
 
 const fetchSearchResults = async (value: string) => {
   const data = await fetch(`${API_URL}/search?searchTerm=${value}`);
@@ -40,17 +40,17 @@ function App() {
   const [cities, setCities] = useState<City[]>([]);
   const [countries, setCountries] = useState<Country[]>([]);
   const [showClearBtn, setShowClearBtn] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [timeoutRef, setTimeoutRef] = useState<null | number>(null);
 
   useEffect(() => {
+    if (timeoutRef) {
+      clearTimeout(timeoutRef);
+    }
+
     if (!searchTerm) {
       setHotels([]);
       return;
-    }
-
-    if (timeoutRef) {
-      clearTimeout(timeoutRef);
     }
 
     setTimeoutRef(
@@ -68,7 +68,7 @@ function App() {
   }, [searchTerm]);
 
   const fetchData = async (searchTerm: string) => {
-    if (searchTerm === '') {
+    if (searchTerm === "") {
       setHotels([]);
       setShowClearBtn(false);
       return;
