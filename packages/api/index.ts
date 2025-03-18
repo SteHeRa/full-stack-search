@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import { MongoClient } from "mongodb";
+import { MongoClient, ObjectId } from "mongodb";
 
 dotenv.config();
 
@@ -17,6 +17,75 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+app.get("/hotels/:id", async (req: Request, res: Response) => {
+  const mongoClient = new MongoClient(DATABASE_URL);
+  console.log("Connecting to MongoDB...");
+  const { id } = req.params;
+  try {
+    await mongoClient.connect();
+    console.log("Successfully connected to MongoDB!");
+    const db = mongoClient.db();
+
+    const hotelsCollection = db.collection("hotels");
+    if (!id) {
+      return res.status(400).send("Id is required");
+    }
+    const oId = new ObjectId(id);
+    const hotel = await hotelsCollection.findOne({ _id: oId });
+    res.send(hotel);
+  } catch (error) {
+    res.status(500).send("Internal Server Error");
+  } finally {
+    await mongoClient.close();
+  }
+});
+
+app.get("/cities/:id", async (req: Request, res: Response) => {
+  const mongoClient = new MongoClient(DATABASE_URL);
+  console.log("Connecting to MongoDB...");
+  const { id } = req.params;
+  try {
+    await mongoClient.connect();
+    console.log("Successfully connected to MongoDB!");
+    const db = mongoClient.db();
+
+    const citiesCollection = db.collection("cities");
+    if (!id) {
+      return res.status(400).send("Id is required");
+    }
+    const oId = new ObjectId(id);
+    const city = await citiesCollection.findOne({ _id: oId });
+    res.send(city);
+  } catch (error) {
+    res.status(500).send("Internal Server Error");
+  } finally {
+    await mongoClient.close();
+  }
+});
+
+app.get("/countries/:id", async (req: Request, res: Response) => {
+  const mongoClient = new MongoClient(DATABASE_URL);
+  console.log("Connecting to MongoDB...");
+  const { id } = req.params;
+  try {
+    await mongoClient.connect();
+    console.log("Successfully connected to MongoDB!");
+    const db = mongoClient.db();
+
+    const countriesCollection = db.collection("countries");
+    if (!id) {
+      return res.status(400).send("Id is required");
+    }
+    const oId = new ObjectId(id);
+    const country = await countriesCollection.findOne({ _id: oId });
+    res.send(country);
+  } catch (error) {
+    res.status(500).send("Internal Server Error");
+  } finally {
+    await mongoClient.close();
+  }
+});
 
 app.get("/search", async (req: Request, res: Response) => {
   const mongoClient = new MongoClient(DATABASE_URL);

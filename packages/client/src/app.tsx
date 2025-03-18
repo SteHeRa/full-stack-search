@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { getCodeSandboxHost } from "@codesandbox/utils";
 
-type Hotel = {
+export type Hotel = {
   _id: string;
   chain_name: string;
   hotel_name: string;
@@ -9,12 +9,12 @@ type Hotel = {
   country: string;
 };
 
-type City = {
+export type City = {
   _id: string;
   name: string;
 };
 
-type Country = {
+export type Country = {
   _id: string;
   country: string;
   countryisocode: string;
@@ -125,7 +125,7 @@ function App() {
                     countries.map((country, index) => (
                       <li key={`country_${index}`}>
                         <a
-                          href={`/country/${country._id}`}
+                          href={`/countries/${country._id}`}
                           className="dropdown-item"
                         >
                           <i className="fa fa-building mr-2"></i>
@@ -141,7 +141,10 @@ function App() {
                   {cities.length ? (
                     cities.map((city, index) => (
                       <li key={`city_${index}`}>
-                        <a href={`/city/${city._id}`} className="dropdown-item">
+                        <a
+                          href={`/cities/${city._id}`}
+                          className="dropdown-item"
+                        >
                           <i className="fa fa-building mr-2"></i>
                           {city.name}
                         </a>
