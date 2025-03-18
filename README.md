@@ -98,11 +98,13 @@ For implementing the search I figured that having one restful endpoint that quer
 
 The new restful endpoint `/search` accepts a query `searchTerm` that is used to generate a regular expression to search the MongoDB for matches. I had intended to add pagination to this endpoint to help limit the number of results that would come back from the search but in the interest of time I didn't.
 
-The endpoint queries the database 3 times. Once to find `hotels` with matching hotel names OR matching chain names, once to find `cities` and once to find `countries`. When writing these queries I considered whether it would be more performant to write the query for `hotels` to also match on `city` and `country` or to write the query for `cities` and `countries` to 'include' hotels. I'm honestly not sure which approach is more performant, especially considering my implementation where I map the included hotels into the hotels response property but I was more interested in trying to use the aggregate operation with $lookup as I haven't used this with my limited experience with MongoDB and wanted to give it a try. My gut tells me this is a more performant approach, but as I've said I'm not sure.
+The endpoint queries the database 3 times. Once to find `hotels` with matching hotel names OR matching chain names, once to find `cities` and once to find `countries`. When writing these queries I considered whether it would be more performant to write the query for `hotels` to also match on `city` and `country` or to write the query for `cities` and `countries` to 'include' hotels. I'm honestly not sure which approach is more performant, especially considering my implementation where I map the included hotels into the hotels response property but I was more interested in trying to use the aggregate operation with $lookup as I haven't used this with my limited experience with MongoDB and wanted to give it a try. My gut tells me this is a more performant approach, but as I've said I'm not sure and I don't think there is a enough data to be able to reasonably run benchmarks/compare performance.
 
 I've used react router for routing on the front as it's a SPA router that I'm familiar with.
 
 The api call creates a new connection with MongoDB every time it's called and closes the connection every time it resolves. If I were to spend a bit more time on this task I would change this so the server/api uses a singleton for the MongoDB client and re-uses the same connection for multiple queries or set up a connection pool to handle this.
+
+Also if I were to spend more time on this I would want to add automated tests.
 
 ### Database structure
 
